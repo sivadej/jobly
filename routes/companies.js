@@ -12,7 +12,7 @@ router.get('/hello', (req,res,next)=>{
 // return JSON { companies: [ companyData, ... ] }
 router.get('/', async (req,res,next)=>{
 	try{
-		let companies = await Company.hello();
+		let companies = await Company.all();
 		return res.json({companies});
 	}
 	catch (err) {

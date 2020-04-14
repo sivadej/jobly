@@ -13,16 +13,26 @@ class Company {
 		this.logo_url = logo_url;
 	  }
 
-	static async hello() {
-		return ([{ message: "hello" }, { message: "greetings" }]);
-	}
-
 	static async addNew({handle, name, num_employees, description, logo_url}) {
 		const company = await db.query(`
 			INSERT INTO companies (handle, name, num_employees, description, logo_url)
 				VALUES ($1,$2,$3,$4,$5)
-				RETURNING *`,
+				RETURNING handle, name, num_employees, description, logo_url`,
 			[handle, name, num_employees, description, logo_url]);
+		//return new Company(company.rows[0]);
+		return company.rows[0];
+	}
+
+	static async getByHandle(handle) {
+		const company = await db.query(`
+			SELECT handle, name, num_employees, description, logo_url 
+				FROM companies
+				WHERE handle = $1`,
+			[handle]);
+
+		if (!company.rows[0]) {
+			throw new ExpressError(`No company found with handle: ${handle}`, 404);
+		}
 		return company.rows[0];
 	}
 
@@ -37,8 +47,8 @@ class Company {
 		}
 		// add additional params to db query if they exist
 		else {
-			let { search = '', min_employees = 0, max_employees = 2147483647 } = searchParams;
-			if (parseInt(min_employees) > parseInt(max_employees)) throw new ExpressError('Employee min/max search out of range', 404);
+			let { search = '', min_employees = 0, max_employees = 2147483647 } = searchParams; // default max is largest possible 4-bit integer
+			if (parseInt(min_employees) > parseInt(max_employees)) throw new ExpressError('Invalid employee min/max range', 404);
 			queryString += ` WHERE name ILIKE $1 AND num_employees BETWEEN $2 AND $3`;
 			results = await db.query(queryString, [`%${search}%`, min_employees, max_employees]);
 		}
@@ -47,8 +57,8 @@ class Company {
 			throw new ExpressError('No companies found.', 404);
 		}
 
-		return results.rows.map(c => new Company(c));
-
+		return results.rows;
+		//return results.rows.map(c => new Company(c));
 	}
 
 }

@@ -12,7 +12,7 @@ router.get('/hello', (req, res, next) => {
 // return JSON { companies: [ companyData, ... ] }
 router.get('/', async (req, res, next) => {
 	try {
-		let companies = await Company.all(req.query);
+		const companies = await Company.all(req.query);
 		return res.json({ companies });
 	}
 	catch (err) {
@@ -26,7 +26,20 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req,res,next) => {
 	try {
 		const { handle, name, num_employees, description, logo_url } = req.body;
-		let company = await Company.addNew({handle, name, num_employees, description, logo_url});
+		const company = await Company.addNew({handle, name, num_employees, description, logo_url});
+		return res.json({ company });
+	}
+	catch (err) {
+		return next(err);
+	}
+})
+
+// GET /companies/[handle]
+// Returns single company found by its handle id
+// return JSON { company: companyData }
+router.get('/:handle', async (req,res,next) => {
+	try {
+		const company = await Company.getByHandle(req.params.handle);
 		return res.json({ company });
 	}
 	catch (err) {

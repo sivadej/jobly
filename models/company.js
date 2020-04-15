@@ -6,21 +6,12 @@ const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Company {
 
-	constructor({ handle, name, num_employees, description, logo_url }) {
-		this.handle = handle;
-		this.name = name;
-		this.num_employees = num_employees;
-		this.description = description;
-		this.logo_url = logo_url;
-	}
-
-	static async addNew({ handle, name, num_employees, description, logo_url }) {
+	static async addNew(data) {
 		const company = await db.query(`
 			INSERT INTO companies (handle, name, num_employees, description, logo_url)
 				VALUES ($1,$2,$3,$4,$5)
 				RETURNING handle, name, num_employees, description, logo_url`,
-			[handle, name, num_employees, description, logo_url]);
-		//return new Company(company.rows[0]);
+			[data.handle, data.name, data.num_employees, data.description, data.logo_url]);
 		return company.rows[0];
 	}
 
@@ -62,7 +53,6 @@ class Company {
 			throw new ExpressError('No companies found.', 404);
 		}
 		return results.rows;
-		//return results.rows.map(c => new Company(c));
 	}
 
 	static async edit(id, data) {

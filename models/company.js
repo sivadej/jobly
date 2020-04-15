@@ -2,18 +2,19 @@
 
 const db = require('../db');
 const ExpressError = require('../helpers/expressError');
+const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Company {
 
 	constructor({ handle, name, num_employees, description, logo_url }) {
-		this.handle = handle; 
-		this.name = name; 
-		this.num_employees = num_employees; 
-		this.description = description; 
+		this.handle = handle;
+		this.name = name;
+		this.num_employees = num_employees;
+		this.description = description;
 		this.logo_url = logo_url;
-	  }
+	}
 
-	static async addNew({handle, name, num_employees, description, logo_url}) {
+	static async addNew({ handle, name, num_employees, description, logo_url }) {
 		const company = await db.query(`
 			INSERT INTO companies (handle, name, num_employees, description, logo_url)
 				VALUES ($1,$2,$3,$4,$5)
@@ -21,6 +22,11 @@ class Company {
 			[handle, name, num_employees, description, logo_url]);
 		//return new Company(company.rows[0]);
 		return company.rows[0];
+	}
+
+	static async delete(handle) {
+		const result = await db.query(`DELETE FROM companies WHERE handle = $1 RETURNING handle`, [handle]);
+		if (result.rows.length === 0) throw new ExpressError(`No company found with id ${handle}`, 404);
 	}
 
 	static async getByHandle(handle) {
@@ -37,7 +43,6 @@ class Company {
 	}
 
 	static async all(searchParams) {
-
 		let queryString = `SELECT handle, name, num_employees, description, logo_url FROM companies`;
 		let results;
 
@@ -56,9 +61,14 @@ class Company {
 		if (!results.rows[0]) {
 			throw new ExpressError('No companies found.', 404);
 		}
-
 		return results.rows;
 		//return results.rows.map(c => new Company(c));
+	}
+
+	static async edit(id, data) {
+		let generatedQuery = sqlForPartialUpdate('companies', data, 'handle', id);
+		let result = await db.query(generatedQuery.query, generatedQuery.values)
+		return result.rows[0];
 	}
 
 }

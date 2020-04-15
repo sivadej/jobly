@@ -27,13 +27,13 @@ router.get('/', async (req, res, next) => {
 // POST /
 // Create new and return newly created company data
 // return JSON { company: companyData }
-router.post('/', async (req,res,next) => {
+router.post('/', async (req, res, next) => {
 	try {
 		const validation = validate(req.body, companySchemaNew);
-		if (!validation.valid) throw new ExpressError(validation.errors.map(e=>e.stack),400);
-		
+		if (!validation.valid) throw new ExpressError(validation.errors.map(e => e.stack), 400);
+
 		const { handle, name, num_employees, description, logo_url } = req.body;
-		const company = await Company.addNew({handle, name, num_employees, description, logo_url});
+		const company = await Company.addNew({ handle, name, num_employees, description, logo_url });
 		return res.json({ company });
 	}
 	catch (err) {
@@ -44,7 +44,7 @@ router.post('/', async (req,res,next) => {
 // GET [handle]
 // Returns single company found by its handle id
 // return JSON { company: companyData }
-router.get('/:handle', async (req,res,next) => {
+router.get('/:handle', async (req, res, next) => {
 	try {
 		const company = await Company.getByHandle(req.params.handle);
 		return res.json({ company });
@@ -57,10 +57,10 @@ router.get('/:handle', async (req,res,next) => {
 // PATCH [handle]
 // Edit and return existing company
 // return JSON { company: companyData }
-router.patch('/:handle', async (req,res,next) => {
+router.patch('/:handle', async (req, res, next) => {
 	try {
-		//const validation = validate(req.body, companySchemaEdit);
-		if (!validate(req.body, companySchemaEdit)) throw new ExpressError(validation.errors.map(e=>e.stack),400);
+		const validation = validate(req.body, companySchemaEdit);
+		if (!validation.valid) throw new ExpressError(validation.errors.map(e => e.stack), 400);
 
 		const company = await Company.edit(req.params.handle, req.body);
 		return res.json({ company })
@@ -73,10 +73,10 @@ router.patch('/:handle', async (req,res,next) => {
 // DELETE [handle]
 // Remove existing company and return message
 // return JSON { message: "Company deleted" }
-router.delete('/:handle', async (req,res,next) => {
+router.delete('/:handle', async (req, res, next) => {
 	try {
 		await Company.delete(req.params.handle);
-		return res.json({message: 'Company deleted'});
+		return res.json({ message: 'Company deleted' });
 	}
 	catch (err) {
 		return next(err);

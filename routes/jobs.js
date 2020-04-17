@@ -4,8 +4,8 @@ const Job = require('../models/job');
 const router = new express.Router();
 const ExpressError = require('../helpers/expressError');
 const { validate } = require('jsonschema');
-// const companySchemaNew = require('../schemas/companySchemaNew');
-// const companySchemaEdit = require('../schemas/companySchemaEdit');
+const jobSchemaNew = require('../schemas/jobSchemaNew');
+const jobSchemaEdit = require('../schemas/jobSchemaEdit');
 
 router.get('/hello', (req, res, next) => {
 	res.json({ message: 'hello from jobs' });
@@ -30,8 +30,8 @@ router.get('/', async (req, res, next) => {
 // return JSON { job: jobData }
 router.post('/', async (req, res, next) => {
 	try {
-		//const validation = validate(req.body, companySchemaNew);
-		//if (!validation.valid) throw new ExpressError(validation.errors.map(e => e.stack), 400);
+		const validation = validate(req.body, jobSchemaNew);
+		if (!validation.valid) throw new ExpressError(validation.errors.map(e => e.stack), 400);
 
 		const job = await Job.addNew(req.body);
 		return res.status(201).json({ job });
@@ -59,8 +59,8 @@ router.get('/:id', async (req, res, next) => {
 // return JSON { jobs: jobData }
 router.patch('/:id', async (req, res, next) => {
 	try {
-		//const validation = validate(req.body, companySchemaEdit);
-		//if (!validation.valid) throw new ExpressError(validation.errors.map(e => e.stack), 400);
+		const validation = validate(req.body, jobSchemaEdit);
+		if (!validation.valid) throw new ExpressError(validation.errors.map(e => e.stack), 400);
 
 		const job = await Job.edit(req.params.id, req.body);
 		return res.json({ job })

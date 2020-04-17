@@ -16,8 +16,6 @@ beforeEach(async () => {
 	catch (err) {
 		console.error(err);
 	}
-
-
 })
 
 afterEach(async () => {
@@ -45,19 +43,6 @@ describe('POST /jobs', () => {
 		expect(response.body.job).toHaveProperty('id');
 		expect(response.body.date_posted).not.toBeNull();
 	})
-
-	// test('will not create duplicate company', async () => {
-	// 	const response = await request(app)
-	// 		.post('/companies')
-	// 		.send({
-	// 			handle: 'beforeeach',
-	// 			name: 'before co',
-	// 			num_employees: 100,
-	// 			description: 'beforeeach co first entry',
-	// 			logo_url: 'test.jpg',
-	// 		});
-	// 	expect(response.statusCode).toBe(500);
-	// })
 
 })
 
@@ -90,53 +75,23 @@ describe('GET /jobs/:id', () => {
 
 })
 
-// describe('PATCH /companies/:handle', ()=> {
+describe('PATCH /jobs/:id', () => {
 
-// 	test('edits a company with full body', async ()=>{
-// 		const response = await request(app)
-// 		.patch('/companies/beforeeach')
-// 		.send({
-// 			handle: 'edited',
-// 			name: 'edited name',
-// 			num_employees: 1,
-// 			description: 'edited desc',
-// 			logo_url: 'edited.jpg',
-// 		});
-// 		expect(response.statusCode).toBe(200);
-// 		expect(response.body).toHaveProperty('company');
-// 		expect(response.body.company.handle).toBe('edited');
-// 		expect(response.body.company.name).toBe('edited name');
-// 		expect(response.body.company.num_employees).toBe(1);
-// 		expect(response.body.company.description).toBe('edited desc');
-// 		expect(response.body.company.logo_url).toBe('edited.jpg');
-// 	})
-
-// 	test('partially edit a company', async ()=>{
-// 		const response = await request(app)
-// 		.patch('/companies/beforeeach')
-// 		.send({
-// 			name: 'partial',
-// 			logo_url: 'partial.jpg',
-// 		});
-// 		expect(response.statusCode).toBe(200);
-// 		expect(response.body).toHaveProperty('company');
-// 		expect(response.body.company.handle).toBe('beforeeach');
-// 		expect(response.body.company.name).toBe('partial');
-// 		expect(response.body.company.num_employees).toBe(100);
-// 		expect(response.body.company.logo_url).toBe('partial.jpg');
-// 	})
-
-// 	test('returns 404 error if company not found', async ()=> {
-// 		const response = await request(app)
-// 		.patch('/companies/NOTREALCOMPANY')
-// 		.send({
-// 			name: 'errorplease',
-// 			logo_url: 'throwme.jpg',
-// 		});
-// 		expect(response.statusCode).toBe(404);
-// 	})
-
-// })
+	test('edits a job with full body', async () => {
+		const dbID = await db.query(`SELECT id FROM jobs WHERE title='tester'`);
+		const id = dbID.rows[0].id;
+		const response = await request(app)
+			.patch(`/jobs/${id}`)
+			.send({
+				title: 'changed',
+				salary: 1,
+			});
+		expect(response.statusCode).toBe(200);
+		expect(response.body.job.id).toBe(id);
+		expect(response.body.job.title).toBe('changed');
+		expect(response.body.job.salary).toBe(1);
+	})
+})
 
 describe('DELETE /jobs/:id', ()=> {
 
@@ -155,7 +110,6 @@ describe('DELETE /jobs/:id', ()=> {
 	})
 
 })
-
 
 afterAll(async () => {
 	await db.end();

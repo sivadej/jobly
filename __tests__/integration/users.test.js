@@ -48,57 +48,58 @@ describe('POST /users', () => {
 
 })
 
-// describe('GET /jobs', () => {
+describe('GET /users', () => {
 
-// 	test('gets list of 1 job', async () => {
-// 		const response = await request(app).get('/jobs');
-// 		expect(response.body.jobs).toHaveLength(1);
-// 		expect(response.body.jobs[0]).toHaveProperty('title', 'tester');
-// 	})
+	test('gets list of 1 user', async () => {
+		const response = await request(app).get('/users');
+		expect(response.body.users).toHaveLength(1);
+		expect(response.body.users[0]).toHaveProperty('username', 'testUser');
+		expect(response.body.users[0]).not.toHaveProperty('password');
+	})
 
-// 	//test search with queries
+})
 
-// })
+describe('GET /users/:username', () => {
 
-// describe('GET /jobs/:id', () => {
+	test('gets user data by username', async () => {
+		const dbID = await db.query(`SELECT username FROM users WHERE username='testUser'`);
+		const username = dbID.rows[0].username;
+		const response = await request(app).get(`/users/${username}`);
+		expect(response.body).toHaveProperty('user');
+		expect(response.body.user).toHaveProperty('username');
+		expect(response.body.user).toHaveProperty('first_name');
+		expect(response.body.user).not.toHaveProperty('password');
+	})
 
-// 	test('gets a single job description', async () => {
-// 		const dbID = await db.query(`SELECT id FROM jobs WHERE title='tester'`);
-// 		const id = dbID.rows[0].id;
-// 		const response = await request(app).get(`/jobs/${id}`);
-// 		expect(response.body).toHaveProperty('job');
-// 		expect(response.body.job).toHaveProperty('title', 'tester');
-// 	})
+	test('returns 404 error if company not found', async () => {
+		const response = await request(app).get(`/users/0`);
+		expect(response.statusCode).toBe(404);
+	})
 
-// 	test('returns 404 error if company not found', async () => {
-// 		const response = await request(app).get(`/jobs/0`);
-// 		expect(response.statusCode).toBe(404);
-// 	})
+})
 
-// })
+describe('PATCH /users/:username', () => {
 
-// describe('PATCH /jobs/:id', () => {
+	test('edits a user by username', async () => {
+		const dbID = await db.query(`SELECT username FROM users WHERE username='testUser'`);
+		const username = dbID.rows[0].username;
+		const response = await request(app)
+			.patch(`/users/${username}`)
+			.send({
+				email: 'changed@changed.com',
+				photo_url: 'changed.jpeg',
+			});
+		expect(response.statusCode).toBe(200);
+		expect(response.body.user.first_name).toBe('ftest');
+		expect(response.body.user.email).toBe('changed@changed.com');
+		expect(response.body.user).not.toHaveProperty('password');
+	})
 
-// 	test('edits a job with full body', async () => {
-// 		const dbID = await db.query(`SELECT id FROM jobs WHERE title='tester'`);
-// 		const id = dbID.rows[0].id;
-// 		const response = await request(app)
-// 			.patch(`/jobs/${id}`)
-// 			.send({
-// 				title: 'changed',
-// 				salary: 1,
-// 			});
-// 		expect(response.statusCode).toBe(200);
-// 		expect(response.body.job.id).toBe(id);
-// 		expect(response.body.job.title).toBe('changed');
-// 		expect(response.body.job.salary).toBe(1);
-// 	})
+	//test valiates json body
 
-// 	//test valiates json body
+	//test returns 404 if job id not found
 
-// 	//test returns 404 if job id not found
-
-// })
+})
 
 // describe('DELETE /jobs/:id', ()=> {
 

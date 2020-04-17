@@ -15,10 +15,10 @@ class User {
 		return user.rows[0];
 	}
 
-	// static async delete(id) {
-	// 	const result = await db.query(`DELETE FROM jobs WHERE id = $1 RETURNING id`, [id]);
-	// 	if (result.rows.length === 0) throw new ExpressError(`No company found with id ${id}`, 404);
-	// }
+	static async delete(username) {
+		const result = await db.query(`DELETE FROM users WHERE username = $1 RETURNING username`, [username]);
+		if (result.rows.length === 0) throw new ExpressError(`User not found: ${username}`, 404);
+	}
 
 	static async getByUsername(username) {
 		const user = await db.query(`
@@ -42,14 +42,15 @@ class User {
 		return users.rows;
 	}
 
-	// static async edit(id, data) {
-	// 	let generatedQuery = sqlForPartialUpdate('jobs', data, 'id', id);
-	// 	let result = await db.query(generatedQuery.query, generatedQuery.values);
-	// 	if (!result.rows[0]) {
-	// 		throw new ExpressError(`No job found with id: ${id}`, 404);
-	// 	}
-	// 	return result.rows[0];
-	// }
+	static async edit(username, data) {
+		let generatedQuery = sqlForPartialUpdate('users', data, 'username', username);
+		let result = await db.query(generatedQuery.query, generatedQuery.values);
+		if (!result.rows[0]) {
+			throw new ExpressError(`User not found: ${username}`, 404);
+		}
+		delete result.rows[0].password;
+		return result.rows[0];
+	}
 
 }
 

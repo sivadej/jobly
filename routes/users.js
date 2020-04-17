@@ -54,33 +54,33 @@ router.get('/:username', async (req, res, next) => {
 	}
 })
 
-// // PATCH [id]
-// // Edit and return existing jobs
-// // return JSON { jobs: jobData }
-// router.patch('/:id', async (req, res, next) => {
-// 	try {
-// 		const validation = validate(req.body, jobSchemaEdit);
-// 		if (!validation.valid) throw new ExpressError(validation.errors.map(e => e.stack), 400);
+// PATCH [username]
+// Edit and return existing user
+// return JSON { user: userData }
+router.patch('/:username', async (req, res, next) => {
+	try {
+		// const validation = validate(req.body, jobSchemaEdit);
+		// if (!validation.valid) throw new ExpressError(validation.errors.map(e => e.stack), 400);
 
-// 		const job = await Job.edit(req.params.id, req.body);
-// 		return res.json({ job })
-// 	}
-// 	catch (err) {
-// 		return next(err);
-// 	}
-// })
+		const user = await User.edit(req.params.username, req.body);
+		return res.json({ user })
+	}
+	catch (err) {
+		return next(err);
+	}
+})
 
-// // DELETE [id]
-// // Remove existing job and return message
-// // return JSON { message: "Job deleted" }
-// router.delete('/:id', async (req, res, next) => {
-// 	try {
-// 		await Job.delete(req.params.id);
-// 		return res.json({ message: 'Job deleted' });
-// 	}
-// 	catch (err) {
-// 		return next(err);
-// 	}
-// })
+// DELETE [username]
+// Remove existing user and return message
+// return JSON { message: "User deleted" }
+router.delete('/:username', async (req, res, next) => {
+	try {
+		await User.delete(req.params.username);
+		return res.json({ message: 'User deleted' });
+	}
+	catch (err) {
+		return next(err);
+	}
+})
 
 module.exports = router;

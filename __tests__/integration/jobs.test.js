@@ -44,6 +44,8 @@ describe('POST /jobs', () => {
 		expect(response.body.date_posted).not.toBeNull();
 	})
 
+	//test valiates json body
+
 })
 
 describe('GET /jobs', () => {
@@ -91,6 +93,11 @@ describe('PATCH /jobs/:id', () => {
 		expect(response.body.job.title).toBe('changed');
 		expect(response.body.job.salary).toBe(1);
 	})
+
+	//test valiates json body
+
+	//test returns 404 if job id not found
+
 })
 
 describe('DELETE /jobs/:id', ()=> {
@@ -108,6 +115,8 @@ describe('DELETE /jobs/:id', ()=> {
 		.delete('/jobs/0');
 		expect(response.statusCode).toBe(404);
 	})
+
+	//test returns 404 if job id not found
 
 })
 

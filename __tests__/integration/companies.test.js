@@ -59,6 +59,8 @@ describe('POST /companies', () => {
 		expect(response.statusCode).toBe(500);
 	})
 
+	//test valiates json body
+
 })
 
 describe('GET /companies', () => {
@@ -131,6 +133,8 @@ describe('PATCH /companies/:handle', () => {
 			});
 		expect(response.statusCode).toBe(404);
 	})
+
+	//test valiates json body
 
 })
 

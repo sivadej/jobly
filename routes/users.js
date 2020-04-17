@@ -12,19 +12,18 @@ router.get('/hello', (req, res, next) => {
 })
 
 
-// // GET all jobs
-// // all titles and company handles, ordered by most recently posted
-// // allow optional params: search, min_salary, min_equity
-// // return JSON { jobs: [ job, ... ] }
-// router.get('/', async (req, res, next) => {
-// 	try {
-// 		const jobs = await Job.all(req.query);
-// 		return res.json({ jobs });
-// 	}
-// 	catch (err) {
-// 		return next(err);
-// 	}
-// })
+// GET all users
+// return array of users --> username, first_name, last_name, email
+// return JSON { users: [ {userData}, ... ] }
+router.get('/', async (req, res, next) => {
+	try {
+		const users = await User.all(req.query);
+		return res.json({ users });
+	}
+	catch (err) {
+		return next(err);
+	}
+})
 
 // POST /
 // Create new and return newly created user

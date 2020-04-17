@@ -12,38 +12,15 @@ const TEST_COMPANY = {
 	"logo_url": "test.jpg"
 };
 
-// set up fresh tables
-beforeAll(async () => {
-	try {
-		await db.query(`DROP TABLE IF EXISTS jobs`);
-		await db.query(`DROP TABLE IF EXISTS companies`);
-		await db.query(`CREATE TABLE companies (
-			handle TEXT PRIMARY KEY,
-			name TEXT UNIQUE NOT NULL,
-			num_employees INTEGER,
-			description TEXT, 
-			logo_url TEXT
-		  );`)
-		await db.query(`
-		  CREATE TABLE jobs (
-			id SERIAL PRIMARY KEY,
-			title TEXT NOT NULL,
-			salary FLOAT NOT NULL,
-			equity FLOAT NOT NULL,
-			company_handle TEXT REFERENCES companies(handle) ON DELETE CASCADE,
-			date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		  );`)
-	}
-	catch (err) {
-		console.error(err);
-	}
-})
 
 beforeEach(async () => {
 	try {
 		await db.query(`
 		INSERT INTO companies (handle, name, num_employees, description, logo_url)
 			VALUES ('beforeeach','before co','100','beforeeach co first entry','test.jpg')`);
+		await db.query(`
+		INSERT INTO jobs (title, salary, equity, company_handle) VALUES ($1,$2,$3,$4)`,
+			['tester', 99000, 0.5, 'beforeeach']);
 	}
 	catch (err) {
 		console.error(err);
@@ -84,58 +61,59 @@ describe('POST /companies', () => {
 
 })
 
-describe('GET /companies', ()=> {
+describe('GET /companies', () => {
 
-	test('gets list of 1 company', async ()=>{
+	test('gets list of 1 company', async () => {
 		const response = await request(app).get('/companies');
 		expect(response.body.companies).toHaveLength(1);
-		expect(response.body.companies[0]).toHaveProperty('name','before co');
+		expect(response.body.companies[0]).toHaveProperty('name', 'before co');
 	})
+
+	//test gets company own jobs
+
 })
 
-describe('GET /companies/:handle', ()=> {
+describe('GET /companies/:handle', () => {
 
-	test('gets a single company', async ()=>{
+	test('gets a single company', async () => {
 		const response = await request(app).get('/companies/beforeeach');
 		expect(response.body).toHaveProperty('company');
-		expect(response.body.company).toHaveProperty('handle','beforeeach');
+		expect(response.body.company).toHaveProperty('handle', 'beforeeach');
 	})
 
-	test('returns 404 error if company not found', async ()=> {
+	test('returns 404 error if company not found', async () => {
 		const response = await request(app).get('/companies/NotARealCompany');
 		expect(response.statusCode).toBe(404);
 	})
 
 })
 
-describe('PATCH /companies/:handle', ()=> {
+describe('PATCH /companies/:handle', () => {
 
-	test('edits a company with full body', async ()=>{
+	test('edits a company with full body', async () => {
 		const response = await request(app)
-		.patch('/companies/beforeeach')
-		.send({
-			handle: 'edited',
-			name: 'edited name',
-			num_employees: 1,
-			description: 'edited desc',
-			logo_url: 'edited.jpg',
-		});
+			.patch('/companies/beforeeach')
+			.send({
+				handle: 'beforeeach',
+				name: 'edited name',
+				num_employees: 1,
+				description: 'edited desc',
+				logo_url: 'edited.jpg',
+			});
 		expect(response.statusCode).toBe(200);
-		expect(response.body).toHaveProperty('company');
-		expect(response.body.company.handle).toBe('edited');
 		expect(response.body.company.name).toBe('edited name');
 		expect(response.body.company.num_employees).toBe(1);
 		expect(response.body.company.description).toBe('edited desc');
 		expect(response.body.company.logo_url).toBe('edited.jpg');
 	})
 
-	test('partially edit a company', async ()=>{
+	test('partially edit a company', async () => {
 		const response = await request(app)
-		.patch('/companies/beforeeach')
-		.send({
-			name: 'partial',
-			logo_url: 'partial.jpg',
-		});
+			.patch('/companies/beforeeach')
+			.send({
+				name: 'partial',
+				logo_url: 'partial.jpg',
+			});
 		expect(response.statusCode).toBe(200);
 		expect(response.body).toHaveProperty('company');
 		expect(response.body.company.handle).toBe('beforeeach');
@@ -144,38 +122,36 @@ describe('PATCH /companies/:handle', ()=> {
 		expect(response.body.company.logo_url).toBe('partial.jpg');
 	})
 
-	test('returns 404 error if company not found', async ()=> {
+	test('returns 404 error if company not found', async () => {
 		const response = await request(app)
-		.patch('/companies/NOTREALCOMPANY')
-		.send({
-			name: 'errorplease',
-			logo_url: 'throwme.jpg',
-		});
+			.patch('/companies/NOTREALCOMPANY')
+			.send({
+				name: 'errorplease',
+				logo_url: 'throwme.jpg',
+			});
 		expect(response.statusCode).toBe(404);
 	})
 
 })
 
-describe('DELETE /companies/:handle', ()=> {
+describe('DELETE /companies/:handle', () => {
 
-	test('deletes company by handle parameter', async ()=> {
+	test('deletes company by handle parameter', async () => {
 		const response = await request(app)
-		.delete('/companies/beforeeach');
+			.delete('/companies/beforeeach');
 		expect(response.statusCode).toBe(200);
 		expect(response.body.message).toBe('Company deleted');
 	})
 
-	test('returns 404 error if company not found', async ()=> {
+	test('returns 404 error if company not found', async () => {
 		const response = await request(app)
-		.delete('/companies/NOTREALCOMPANY');
+			.delete('/companies/NOTREALCOMPANY');
 		expect(response.statusCode).toBe(404);
 	})
 
 })
 
 
-afterAll(async ()=> {
-	await db.query(`DROP TABLE IF EXISTS jobs`);
-	await db.query(`DROP TABLE IF EXISTS companies`);
+afterAll(async () => {
 	await db.end();
 })

@@ -4,48 +4,20 @@ const request = require('supertest');
 const app = require('../../app');
 const db = require('../../db');
 
-// const TEST_COMPANY = {
-// 	"handle": "test",
-// 	"name": "Test Co.",
-// 	"num_employees": 100,
-// 	"description": "company from test data",
-// 	"logo_url": "test.jpg"
-// };
-
-beforeAll(async () => {
+beforeEach(async () => {
 	try {
-		await db.query(`DROP TABLE IF EXISTS jobs`);
-		await db.query(`DROP TABLE IF EXISTS companies`);
-		await db.query(`CREATE TABLE companies (
-			handle TEXT PRIMARY KEY,
-			name TEXT UNIQUE NOT NULL,
-			num_employees INTEGER,
-			description TEXT, 
-			logo_url TEXT
-		  );`)
 		await db.query(`
-		  CREATE TABLE jobs (
-			id SERIAL PRIMARY KEY,
-			title TEXT NOT NULL,
-			salary FLOAT NOT NULL,
-			equity FLOAT NOT NULL,
-			company_handle TEXT REFERENCES companies(handle) ON DELETE CASCADE,
-			date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		  );`)
+			INSERT INTO companies (handle, name, num_employees, description, logo_url)
+				VALUES ('beforeeach','before co','100','beforeeach co first entry','test.jpg')`);
+		await db.query(`
+			INSERT INTO jobs (title, salary, equity, company_handle) VALUES ($1,$2,$3,$4)`,
+			['tester', 99000, 0.5, 'beforeeach']);
 	}
 	catch (err) {
 		console.error(err);
 	}
-})
 
-beforeEach(async () => {
-	await db.query(`
-	INSERT INTO companies (handle, name, num_employees, description, logo_url)
-		VALUES ('beforeeach','before co','100','beforeeach co first entry','test.jpg')`);
-	await db.query(`
-	INSERT INTO jobs (title, salary, equity, company_handle)
-		VALUES ($1,$2,$3,$4)`,
-	['tester',99000,0.5,'beforeeach']);
+
 })
 
 afterEach(async () => {
@@ -64,10 +36,10 @@ describe('POST /jobs', () => {
 		const response = await request(app)
 			.post('/jobs')
 			.send({
-				"title" : "Testing Tester",
-				"salary" : 99999,
-				"equity" : 0.001,
-				"company_handle" : "beforeeach"
+				"title": "Testing Tester",
+				"salary": 99999,
+				"equity": 0.001,
+				"company_handle": "beforeeach"
 			});
 		expect(response.statusCode).toBe(201);
 		expect(response.body.job).toHaveProperty('id');
@@ -89,29 +61,29 @@ describe('POST /jobs', () => {
 
 })
 
-describe('GET /jobs', ()=> {
+describe('GET /jobs', () => {
 
-	test('gets list of 1 job', async ()=>{
+	test('gets list of 1 job', async () => {
 		const response = await request(app).get('/jobs');
 		expect(response.body.jobs).toHaveLength(1);
-		expect(response.body.jobs[0]).toHaveProperty('title','tester');
+		expect(response.body.jobs[0]).toHaveProperty('title', 'tester');
 	})
 
 	//test search with queries
 
 })
 
-describe('GET /jobs/:id', ()=> {
+describe('GET /jobs/:id', () => {
 
-	test('gets a single job description', async ()=>{
+	test('gets a single job description', async () => {
 		const dbID = await db.query(`SELECT id FROM jobs WHERE title='tester'`);
 		const id = dbID.rows[0].id;
 		const response = await request(app).get(`/jobs/${id}`);
 		expect(response.body).toHaveProperty('job');
-		expect(response.body.job).toHaveProperty('title','tester');
+		expect(response.body.job).toHaveProperty('title', 'tester');
 	})
 
-	test('returns 404 error if company not found', async ()=> {
+	test('returns 404 error if company not found', async () => {
 		const response = await request(app).get(`/jobs/0`);
 		expect(response.statusCode).toBe(404);
 	})
@@ -166,26 +138,25 @@ describe('GET /jobs/:id', ()=> {
 
 // })
 
-// describe('DELETE /companies/:handle', ()=> {
+describe('DELETE /jobs/:id', ()=> {
 
-// 	test('deletes company by handle parameter', async ()=> {
-// 		const response = await request(app)
-// 		.delete('/companies/beforeeach');
-// 		expect(response.statusCode).toBe(200);
-// 		expect(response.body.message).toBe('Company deleted');
-// 	})
+	test('deletes job by id', async ()=> {
+		const dbID = await db.query(`SELECT id FROM jobs WHERE title='tester'`);
+		const id = dbID.rows[0].id;
+		const response = await request(app).delete(`/jobs/${id}`);
+		expect(response.statusCode).toBe(200);
+		expect(response.body.message).toBe('Job deleted');
+	})
 
-// 	test('returns 404 error if company not found', async ()=> {
-// 		const response = await request(app)
-// 		.delete('/companies/NOTREALCOMPANY');
-// 		expect(response.statusCode).toBe(404);
-// 	})
+	test('returns 404 error if job id not found', async ()=> {
+		const response = await request(app)
+		.delete('/jobs/0');
+		expect(response.statusCode).toBe(404);
+	})
 
-// })
+})
 
 
-afterAll(async ()=> {
-	await db.query(`DROP TABLE IF EXISTS jobs`);
-	await db.query(`DROP TABLE IF EXISTS companies`);
+afterAll(async () => {
 	await db.end();
 })

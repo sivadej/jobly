@@ -3,7 +3,9 @@
 const express = require("express");
 const ExpressError = require("./helpers/expressError");
 const morgan = require("morgan");
+const jwt = require('jsonwebtoken');
 const app = express();
+const { SECRET_KEY } = require('./config');
 
 app.use(express.json());
 
@@ -17,6 +19,20 @@ const userRoutes = require('./routes/users');
 app.use('/companies',companyRoutes);
 app.use('/jobs',jobRoutes);
 app.use('/users',userRoutes);
+
+// POST /login
+// should authenticate user and return a JSON Web Token
+// containing payload with username and is_admin values
+app.post('/gimmetoken', (req,res,next)=>{
+  try{
+    let { username } = req.body;
+    let token = jwt.sign({username}, SECRET_KEY);
+    return res.json({token});
+  }
+  catch (err) {
+    return next(err);
+  }
+})
 
 /** 404 handler */
 

@@ -29,7 +29,6 @@ beforeEach(async () => {
 
 afterEach(async () => {
 	try {
-		console.log('doing nothing')
 		await db.query(`DELETE FROM jobs`);
 		await db.query(`DELETE FROM companies`);
 	}
@@ -38,45 +37,48 @@ afterEach(async () => {
 	}
 })
 
-describe('jobs placeholder', ()=>{
-	test('nothing', ()=> {
-		expect(2).toBe(2);
+describe('POST /jobs', () => {
+
+	test('create new job', async () => {
+		const response = await request(app)
+			.post('/jobs')
+			.send({
+				"title" : "Testing Tester",
+				"salary" : 99999,
+				"equity" : 0.001,
+				"company_handle" : "beforeeach"
+			});
+		expect(response.statusCode).toBe(201);
+		expect(response.body.job).toHaveProperty('id');
+		expect(response.body.date_posted).not.toBeNull();
 	})
+
+	// test('will not create duplicate company', async () => {
+	// 	const response = await request(app)
+	// 		.post('/companies')
+	// 		.send({
+	// 			handle: 'beforeeach',
+	// 			name: 'before co',
+	// 			num_employees: 100,
+	// 			description: 'beforeeach co first entry',
+	// 			logo_url: 'test.jpg',
+	// 		});
+	// 	expect(response.statusCode).toBe(500);
+	// })
+
 })
 
-// describe('POST /jobs', () => {
+describe('GET /jobs', ()=> {
 
-// 	test('create new job', async () => {
-// 		const response = await request(app)
-// 			.post('/jobs')
-// 			.send(TEST_COMPANY);
-// 		expect(response.statusCode).toBe(201);
-// 		expect(response.body.company).toHaveProperty('handle');
-// 	})
+	test('gets list of 1 job', async ()=>{
+		const response = await request(app).get('/jobs');
+		expect(response.body.jobs).toHaveLength(1);
+		expect(response.body.jobs[0]).toHaveProperty('title','tester');
+	})
 
-// 	test('will not create duplicate company', async () => {
-// 		const response = await request(app)
-// 			.post('/companies')
-// 			.send({
-// 				handle: 'beforeeach',
-// 				name: 'before co',
-// 				num_employees: 100,
-// 				description: 'beforeeach co first entry',
-// 				logo_url: 'test.jpg',
-// 			});
-// 		expect(response.statusCode).toBe(500);
-// 	})
+	//test search with queries
 
-// })
-
-// describe('GET /companies', ()=> {
-
-// 	test('gets list of 1 company', async ()=>{
-// 		const response = await request(app).get('/companies');
-// 		expect(response.body.companies).toHaveLength(1);
-// 		expect(response.body.companies[0]).toHaveProperty('name','before co');
-// 	})
-// })
+})
 
 // describe('GET /companies/:handle', ()=> {
 

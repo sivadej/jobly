@@ -11,18 +11,19 @@ router.get('/hello', (req, res, next) => {
 	res.json({ message: 'hello from jobs' });
 })
 
-// // GET all companies
-// // optional params: search, min_employees, max_employees
-// // return JSON { companies: [ companyData, ... ] }
-// router.get('/', async (req, res, next) => {
-// 	try {
-// 		const companies = await Company.all(req.query);
-// 		return res.json({ companies });
-// 	}
-// 	catch (err) {
-// 		return next(err);
-// 	}
-// })
+// GET all jobs
+// all titles and company handles, ordered by most recently posted
+// allow optional params: search, min_salary, min_equity
+// return JSON { jobs: [ job, ... ] }
+router.get('/', async (req, res, next) => {
+	try {
+		const jobs = await Job.all(req.query);
+		return res.json({ jobs });
+	}
+	catch (err) {
+		return next(err);
+	}
+})
 
 // POST /
 // Create new and return newly created company data

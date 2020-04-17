@@ -70,17 +70,17 @@ router.patch('/:id', async (req, res, next) => {
 	}
 })
 
-// // DELETE [handle]
-// // Remove existing company and return message
-// // return JSON { message: "Company deleted" }
-// router.delete('/:handle', async (req, res, next) => {
-// 	try {
-// 		await Company.delete(req.params.handle);
-// 		return res.json({ message: 'Company deleted' });
-// 	}
-// 	catch (err) {
-// 		return next(err);
-// 	}
-// })
+// DELETE [id]
+// Remove existing job and return message
+// return JSON { message: "Job deleted" }
+router.delete('/:id', async (req, res, next) => {
+	try {
+		await Job.delete(req.params.id);
+		return res.json({ message: 'Job deleted' });
+	}
+	catch (err) {
+		return next(err);
+	}
+})
 
 module.exports = router;

@@ -15,10 +15,10 @@ class Job {
 		return job.rows[0];
 	}
 
-	// static async delete(handle) {
-	// 	const result = await db.query(`DELETE FROM companies WHERE handle = $1 RETURNING handle`, [handle]);
-	// 	if (result.rows.length === 0) throw new ExpressError(`No company found with id ${handle}`, 404);
-	// }
+	static async delete(id) {
+		const result = await db.query(`DELETE FROM jobs WHERE id = $1 RETURNING id`, [id]);
+		if (result.rows.length === 0) throw new ExpressError(`No company found with id ${id}`, 404);
+	}
 
 	static async getById(id) {
 		const job = await db.query(`

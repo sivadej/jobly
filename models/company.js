@@ -57,7 +57,10 @@ class Company {
 
 	static async edit(id, data) {
 		let generatedQuery = sqlForPartialUpdate('companies', data, 'handle', id);
-		let result = await db.query(generatedQuery.query, generatedQuery.values)
+		let result = await db.query(generatedQuery.query, generatedQuery.values);
+		if (!result.rows[0]) {
+			throw new ExpressError(`No company found with handle: ${id}`, 404);
+		}
 		return result.rows[0];
 	}
 

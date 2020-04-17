@@ -41,18 +41,18 @@ router.post('/', async (req, res, next) => {
 	}
 })
 
-// // GET [handle]
-// // Returns single company found by its handle id
-// // return JSON { company: companyData }
-// router.get('/:handle', async (req, res, next) => {
-// 	try {
-// 		const company = await Company.getByHandle(req.params.handle);
-// 		return res.json({ company });
-// 	}
-// 	catch (err) {
-// 		return next(err);
-// 	}
-// })
+// GET [id]
+// Returns single job found by its id
+// return JSON { job: jobData }
+router.get('/:id', async (req, res, next) => {
+	try {
+		const job = await Job.getById(req.params.id);
+		return res.json({ job });
+	}
+	catch (err) {
+		return next(err);
+	}
+})
 
 // // PATCH [handle]
 // // Edit and return existing company

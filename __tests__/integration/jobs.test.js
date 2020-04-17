@@ -14,6 +14,23 @@ const db = require('../../db');
 
 beforeEach(async () => {
 	try {
+		await db.query(`CREATE TABLE companies (
+			handle TEXT PRIMARY KEY,
+			name TEXT UNIQUE NOT NULL,
+			num_employees INTEGER,
+			description TEXT, 
+			logo_url TEXT
+		  );
+		  
+		  CREATE TABLE jobs (
+			id SERIAL PRIMARY KEY,
+			title TEXT NOT NULL,
+			salary FLOAT NOT NULL,
+			equity FLOAT NOT NULL,
+			company_handle TEXT REFERENCES companies(handle) ON DELETE CASCADE,
+			date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		  );
+		`);
 		await db.query(`
 			INSERT INTO companies (handle, name, num_employees, description, logo_url)
 				VALUES ('beforeeach','before co','100','beforeeach co first entry','test.jpg')`);
@@ -29,8 +46,8 @@ beforeEach(async () => {
 
 afterEach(async () => {
 	try {
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
+		await db.query(`DROP TABLE jobs`);
+		await db.query(`DROP TABLE companies`);
 	}
 	catch (err) {
 		console.error(err);
@@ -80,20 +97,21 @@ describe('GET /jobs', ()=> {
 
 })
 
-// describe('GET /companies/:handle', ()=> {
+describe('GET /jobs/:id', ()=> {
 
-// 	test('gets a single company', async ()=>{
-// 		const response = await request(app).get('/companies/beforeeach');
-// 		expect(response.body).toHaveProperty('company');
-// 		expect(response.body.company).toHaveProperty('handle','beforeeach');
-// 	})
+	test('gets a single job description', async ()=>{
+		const response = await request(app).get('/jobs/1');
+		console.log(response.body)
+		expect(response.body).toHaveProperty('job');
+		expect(response.body.job).toHaveProperty('title','tester');
+	})
 
-// 	test('returns 404 error if company not found', async ()=> {
-// 		const response = await request(app).get('/companies/NotARealCompany');
-// 		expect(response.statusCode).toBe(404);
-// 	})
+	// test('returns 404 error if company not found', async ()=> {
+	// 	const response = await request(app).get('/companies/NotARealCompany');
+	// 	expect(response.statusCode).toBe(404);
+	// })
 
-// })
+})
 
 // describe('PATCH /companies/:handle', ()=> {
 

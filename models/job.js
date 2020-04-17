@@ -20,21 +20,21 @@ class Job {
 	// 	if (result.rows.length === 0) throw new ExpressError(`No company found with id ${handle}`, 404);
 	// }
 
-	// static async getByHandle(handle) {
-	// 	const company = await db.query(`
-	// 		SELECT handle, name, num_employees, description, logo_url 
-	// 			FROM companies
-	// 			WHERE handle = $1`,
-	// 		[handle]);
+	static async getById(id) {
+		const job = await db.query(`
+			SELECT id, title, salary, equity, company_handle, date_posted 
+				FROM jobs
+				WHERE id = $1`,
+			[id]);
 
-	// 	if (!company.rows[0]) {
-	// 		throw new ExpressError(`No company found with handle: ${handle}`, 404);
-	// 	}
-	// 	return company.rows[0];
-	// }
+		if (!job.rows[0]) {
+			throw new ExpressError(`No job found with handle: ${id}`, 404);
+		}
+		return job.rows[0];
+	}
 
 	static async all(searchParams) {
-		let queryString = `SELECT title, company_handle FROM jobs ORDER BY date_posted DESC`;
+		let queryString = `SELECT id, title, company_handle FROM jobs ORDER BY date_posted DESC`;
 		let results;
 
 		// simple get all if no search options received
@@ -44,7 +44,7 @@ class Job {
 		// add additional params to db query if they exist
 		else {
 			let { search = '', min_salary = 0, min_equity = 0 } = searchParams;
-			queryString = `SELECT title, company_handle FROM jobs WHERE title ILIKE $1 AND salary >= $2 AND equity >= $3 ORDER BY date_posted DESC`;
+			queryString = `SELECT id, title, company_handle FROM jobs WHERE title ILIKE $1 AND salary >= $2 AND equity >= $3 ORDER BY date_posted DESC`;
 			results = await db.query(queryString, [`%${search}%`, min_salary, min_equity]);
 		}
 

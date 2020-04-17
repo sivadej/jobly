@@ -30,7 +30,11 @@ class Company {
 		if (!company.rows[0]) {
 			throw new ExpressError(`No company found with handle: ${handle}`, 404);
 		}
-		return company.rows[0];
+
+		const jobs = await db.query(`
+			SELECT title, salary, equity, date_posted FROM jobs WHERE company_handle = $1`,[handle]);
+
+		return {company:company.rows[0], jobs:jobs.rows};
 	}
 
 	static async all(searchParams) {

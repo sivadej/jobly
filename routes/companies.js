@@ -38,12 +38,12 @@ router.post('/', async (req, res, next) => {
 })
 
 // GET [handle]
-// Returns single company found by its handle id
-// return JSON { company: companyData }
+// Returns single company found by its handle id and its jobs
+// return JSON { company: companyData, jobs: [jobData, ...] }
 router.get('/:handle', async (req, res, next) => {
 	try {
 		const company = await Company.getByHandle(req.params.handle);
-		return res.json({ company });
+		return res.json(company);
 	}
 	catch (err) {
 		return next(err);

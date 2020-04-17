@@ -12,16 +12,18 @@ const db = require('../../db');
 // 	"logo_url": "test.jpg"
 // };
 
-beforeEach(async () => {
+beforeAll(async () => {
 	try {
+		await db.query(`DROP TABLE IF EXISTS jobs`);
+		await db.query(`DROP TABLE IF EXISTS companies`);
 		await db.query(`CREATE TABLE companies (
 			handle TEXT PRIMARY KEY,
 			name TEXT UNIQUE NOT NULL,
 			num_employees INTEGER,
 			description TEXT, 
 			logo_url TEXT
-		  );
-		  
+		  );`)
+		await db.query(`
 		  CREATE TABLE jobs (
 			id SERIAL PRIMARY KEY,
 			title TEXT NOT NULL,
@@ -29,25 +31,27 @@ beforeEach(async () => {
 			equity FLOAT NOT NULL,
 			company_handle TEXT REFERENCES companies(handle) ON DELETE CASCADE,
 			date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		  );
-		`);
-		await db.query(`
-			INSERT INTO companies (handle, name, num_employees, description, logo_url)
-				VALUES ('beforeeach','before co','100','beforeeach co first entry','test.jpg')`);
-		await db.query(`
-			INSERT INTO jobs (title, salary, equity, company_handle)
-				VALUES ($1,$2,$3,$4)`,
-			['tester',99000,0.5,'beforeeach']);
+		  );`)
 	}
 	catch (err) {
 		console.error(err);
 	}
 })
 
+beforeEach(async () => {
+	await db.query(`
+	INSERT INTO companies (handle, name, num_employees, description, logo_url)
+		VALUES ('beforeeach','before co','100','beforeeach co first entry','test.jpg')`);
+	await db.query(`
+	INSERT INTO jobs (title, salary, equity, company_handle)
+		VALUES ($1,$2,$3,$4)`,
+	['tester',99000,0.5,'beforeeach']);
+})
+
 afterEach(async () => {
 	try {
-		await db.query(`DROP TABLE jobs`);
-		await db.query(`DROP TABLE companies`);
+		await db.query(`DELETE FROM jobs`);
+		await db.query(`DELETE FROM companies`);
 	}
 	catch (err) {
 		console.error(err);
@@ -100,16 +104,17 @@ describe('GET /jobs', ()=> {
 describe('GET /jobs/:id', ()=> {
 
 	test('gets a single job description', async ()=>{
-		const response = await request(app).get('/jobs/1');
-		console.log(response.body)
+		const dbID = await db.query(`SELECT id FROM jobs WHERE title='tester'`);
+		const id = dbID.rows[0].id;
+		const response = await request(app).get(`/jobs/${id}`);
 		expect(response.body).toHaveProperty('job');
 		expect(response.body.job).toHaveProperty('title','tester');
 	})
 
-	// test('returns 404 error if company not found', async ()=> {
-	// 	const response = await request(app).get('/companies/NotARealCompany');
-	// 	expect(response.statusCode).toBe(404);
-	// })
+	test('returns 404 error if company not found', async ()=> {
+		const response = await request(app).get(`/jobs/0`);
+		expect(response.statusCode).toBe(404);
+	})
 
 })
 
@@ -180,5 +185,7 @@ describe('GET /jobs/:id', ()=> {
 
 
 afterAll(async ()=> {
+	await db.query(`DROP TABLE IF EXISTS jobs`);
+	await db.query(`DROP TABLE IF EXISTS companies`);
 	await db.end();
 })

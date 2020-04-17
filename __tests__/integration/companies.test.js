@@ -12,6 +12,33 @@ const TEST_COMPANY = {
 	"logo_url": "test.jpg"
 };
 
+// set up fresh tables
+beforeAll(async () => {
+	try {
+		await db.query(`DROP TABLE IF EXISTS jobs`);
+		await db.query(`DROP TABLE IF EXISTS companies`);
+		await db.query(`CREATE TABLE companies (
+			handle TEXT PRIMARY KEY,
+			name TEXT UNIQUE NOT NULL,
+			num_employees INTEGER,
+			description TEXT, 
+			logo_url TEXT
+		  );`)
+		await db.query(`
+		  CREATE TABLE jobs (
+			id SERIAL PRIMARY KEY,
+			title TEXT NOT NULL,
+			salary FLOAT NOT NULL,
+			equity FLOAT NOT NULL,
+			company_handle TEXT REFERENCES companies(handle) ON DELETE CASCADE,
+			date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		  );`)
+	}
+	catch (err) {
+		console.error(err);
+	}
+})
+
 beforeEach(async () => {
 	try {
 		await db.query(`
@@ -148,5 +175,7 @@ describe('DELETE /companies/:handle', ()=> {
 
 
 afterAll(async ()=> {
+	await db.query(`DROP TABLE IF EXISTS jobs`);
+	await db.query(`DROP TABLE IF EXISTS companies`);
 	await db.end();
 })

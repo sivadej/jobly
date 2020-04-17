@@ -28,7 +28,7 @@ class Job {
 			[id]);
 
 		if (!job.rows[0]) {
-			throw new ExpressError(`No job found with handle: ${id}`, 404);
+			throw new ExpressError(`No job found with id: ${id}`, 404);
 		}
 		return job.rows[0];
 	}
@@ -54,14 +54,14 @@ class Job {
 		return results.rows;
 	}
 
-	// static async edit(id, data) {
-	// 	let generatedQuery = sqlForPartialUpdate('companies', data, 'handle', id);
-	// 	let result = await db.query(generatedQuery.query, generatedQuery.values);
-	// 	if (!result.rows[0]) {
-	// 		throw new ExpressError(`No company found with handle: ${id}`, 404);
-	// 	}
-	// 	return result.rows[0];
-	// }
+	static async edit(id, data) {
+		let generatedQuery = sqlForPartialUpdate('jobs', data, 'id', id);
+		let result = await db.query(generatedQuery.query, generatedQuery.values);
+		if (!result.rows[0]) {
+			throw new ExpressError(`No job found with id: ${id}`, 404);
+		}
+		return result.rows[0];
+	}
 
 }
 

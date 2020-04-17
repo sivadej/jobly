@@ -54,21 +54,21 @@ router.get('/:id', async (req, res, next) => {
 	}
 })
 
-// // PATCH [handle]
-// // Edit and return existing company
-// // return JSON { company: companyData }
-// router.patch('/:handle', async (req, res, next) => {
-// 	try {
-// 		const validation = validate(req.body, companySchemaEdit);
-// 		if (!validation.valid) throw new ExpressError(validation.errors.map(e => e.stack), 400);
+// PATCH [id]
+// Edit and return existing jobs
+// return JSON { jobs: jobData }
+router.patch('/:id', async (req, res, next) => {
+	try {
+		//const validation = validate(req.body, companySchemaEdit);
+		//if (!validation.valid) throw new ExpressError(validation.errors.map(e => e.stack), 400);
 
-// 		const company = await Company.edit(req.params.handle, req.body);
-// 		return res.json({ company })
-// 	}
-// 	catch (err) {
-// 		return next(err);
-// 	}
-// })
+		const job = await Job.edit(req.params.id, req.body);
+		return res.json({ job })
+	}
+	catch (err) {
+		return next(err);
+	}
+})
 
 // // DELETE [handle]
 // // Remove existing company and return message

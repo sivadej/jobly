@@ -41,18 +41,18 @@ router.post('/', async (req, res, next) => {
 	}
 })
 
-// // GET [id]
-// // Returns single job found by its id
-// // return JSON { job: jobData }
-// router.get('/:id', async (req, res, next) => {
-// 	try {
-// 		const job = await Job.getById(req.params.id);
-// 		return res.json({ job });
-// 	}
-// 	catch (err) {
-// 		return next(err);
-// 	}
-// })
+// GET [username]
+// Returns single user found by username
+// return JSON { user: userData }
+router.get('/:username', async (req, res, next) => {
+	try {
+		const user = await User.getByUsername(req.params.username);
+		return res.json({ user });
+	}
+	catch (err) {
+		return next(err);
+	}
+})
 
 // // PATCH [id]
 // // Edit and return existing jobs

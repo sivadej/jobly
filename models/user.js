@@ -20,18 +20,18 @@ class User {
 	// 	if (result.rows.length === 0) throw new ExpressError(`No company found with id ${id}`, 404);
 	// }
 
-	// static async getById(id) {
-	// 	const job = await db.query(`
-	// 		SELECT id, title, salary, equity, company_handle, date_posted 
-	// 			FROM jobs
-	// 			WHERE id = $1`,
-	// 		[id]);
+	static async getByUsername(username) {
+		const user = await db.query(`
+			SELECT username, first_name, last_name, email, photo_url 
+				FROM users
+				WHERE username = $1`,
+			[username]);
 
-	// 	if (!job.rows[0]) {
-	// 		throw new ExpressError(`No job found with id: ${id}`, 404);
-	// 	}
-	// 	return job.rows[0];
-	// }
+		if (!user.rows[0]) {
+			throw new ExpressError(`Username not found: ${username}`, 404);
+		}
+		return user.rows[0];
+	}
 
 	static async all() {
 		const users = await db.query(`

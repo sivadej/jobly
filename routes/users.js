@@ -26,21 +26,21 @@ router.get('/hello', (req, res, next) => {
 // 	}
 // })
 
-// // POST /
-// // Create new and return newly created company data
-// // return JSON { job: jobData }
-// router.post('/', async (req, res, next) => {
-// 	try {
-// 		const validation = validate(req.body, jobSchemaNew);
-// 		if (!validation.valid) throw new ExpressError(validation.errors.map(e => e.stack), 400);
+// POST /
+// Create new and return newly created user
+// return JSON { user: user }
+router.post('/', async (req, res, next) => {
+	try {
+		// const validation = validate(req.body, jobSchemaNew);
+		// if (!validation.valid) throw new ExpressError(validation.errors.map(e => e.stack), 400);
 
-// 		const job = await Job.addNew(req.body);
-// 		return res.status(201).json({ job });
-// 	}
-// 	catch (err) {
-// 		return next(err);
-// 	}
-// })
+		const user = await User.addNew(req.body);
+		return res.status(201).json({ user });
+	}
+	catch (err) {
+		return next(err);
+	}
+})
 
 // // GET [id]
 // // Returns single job found by its id

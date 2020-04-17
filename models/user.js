@@ -6,14 +6,14 @@ const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class User {
 
-	// static async addNew(data) {
-	// 	const job = await db.query(`
-	// 		INSERT INTO jobs (title, salary, equity, company_handle)
-	// 			VALUES ($1,$2,$3,$4)
-	// 			RETURNING id, title, salary, equity, company_handle, date_posted`,
-	// 		[data.title, data.salary, data.equity, data.company_handle]);
-	// 	return job.rows[0];
-	// }
+	static async addNew(data) {
+		const user = await db.query(`
+			INSERT INTO users (username, password, first_name, last_name, email, photo_url)
+				VALUES ($1,$2,$3,$4,$5,$6)
+				RETURNING username, first_name, last_name, email, photo_url`,
+			[data.username, data.password, data.first_name, data.last_name, data.email, data.photo_url]);
+		return user.rows[0];
+	}
 
 	// static async delete(id) {
 	// 	const result = await db.query(`DELETE FROM jobs WHERE id = $1 RETURNING id`, [id]);

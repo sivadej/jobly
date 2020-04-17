@@ -7,9 +7,6 @@ const { validate } = require('jsonschema');
 const companySchemaNew = require('../schemas/companySchemaNew');
 const companySchemaEdit = require('../schemas/companySchemaEdit');
 
-router.get('/hello', (req, res, next) => {
-	res.json({ message: 'hello from companies' });
-})
 
 // GET all companies
 // optional params: search, min_employees, max_employees
